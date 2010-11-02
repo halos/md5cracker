@@ -5,7 +5,7 @@ import urllib
 import string
 
 __id__ = "md5searcher.py"
-__version__ = "v0.1"
+__version__ = "v1.0"
 __author__ = "Javier Rascón Mesa"
 __license__ = "GPL"
 
@@ -14,7 +14,7 @@ class md5web:
 	Class to encode a web for searching md5sums
 	"""
 	
-	rpc_str = '#hash#' # str to replace boy the hash
+	rpc_str = '#hash#' # str to replace by the hash
 	
 	def __init__(self, url, prev_str, post_str, post_params=[]):
 		"""
@@ -64,8 +64,9 @@ class md5web:
 					if self.rpc_str in v:
 						v = v.replace(self.rpc_str, hash)
 						params[k] = v
-			
-			page = 	urllib.urlopen(url, urllib.urlencode(params))
+						
+			encoded_params = urllib.urlencode(params)
+			page = 	urllib.urlopen(url, encoded_params)
 			
 			for line in page.readlines():
 				if self.prev_str in line:
@@ -92,6 +93,12 @@ class md5cracker:
 		'http://md5-db.de/#hash#.html',\
 		'verwenden:</strong><ul><li>',\
 		'</li>'))
+		
+		self.webs.append(md5web(\
+		'http://md5online.net/',\
+		'<br>pass : <b>',\
+		'</b></p>',\
+		{'pass':'#hash#', 'option':'hash2text', 'send':'submit'}))
 	
 	def find(self, _hash):
 		"""
