@@ -5,7 +5,7 @@ import urllib
 import string
 
 __id__ = "md5searcher.py"
-__version__ = "v0.2"
+__version__ = "v1.0"
 __author__ = "Javier Rascón Mesa"
 __license__ = "GPL"
 
