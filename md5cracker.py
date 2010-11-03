@@ -2,10 +2,12 @@
 # -*- coding: utf-8 -*-
 
 import urllib
+import urllib2
+import cookielib
 import string
 
 __id__ = "md5searcher.py"
-__version__ = "v1.0"
+__version__ = "v1.1"
 __author__ = "Javier Rascón Mesa"
 __license__ = "GPL"
 
@@ -39,6 +41,11 @@ class md5web:
 			self.mode = "GET"
 		else:
 			self.mode = "POST"
+			
+		# set up cookies
+		cJar=cookielib.LWPCookieJar()
+		opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cJar))
+		urllib2.install_opener(opener)
 	
 	def get(self, hash):
 		"""
@@ -66,12 +73,12 @@ class md5web:
 						params[k] = v
 						
 			encoded_params = urllib.urlencode(params)
-			page = 	urllib.urlopen(url, encoded_params)
+			req = urllib2.Request(url, encoded_params)
+			page = urllib2.urlopen(req).read()
 			
-			for line in page.readlines():
-				if self.prev_str in line:
-					found = line.split(self.prev_str)[1]
-					found = found.split(self.post_str)[0]
+			if self.prev_str in page and self.post_str in page:
+				found = page.split(self.prev_str)[1]
+				found = found.split(self.post_str)[0]
 
 		finally:
 			return found
@@ -85,10 +92,6 @@ class md5cracker:
 		Constructor
 		"""
 		
-		self.webs.append(md5web('http://generuj.pl/?key_md5=#hash#', \
-		'WORD </td><td>',\
-		'</td></tr><tr bgcolor="#d0ffd0"><td>MD5(WORD)')) # needs cookies
-		
 		self.webs.append(md5web(\
 		'http://md5-db.de/#hash#.html',\
 		'verwenden:</strong><ul><li>',\
@@ -99,6 +102,30 @@ class md5cracker:
 		'<br>pass : <b>',\
 		'</b></p>',\
 		{'pass':'#hash#', 'option':'hash2text', 'send':'submit'}))
+		
+		self.webs.append(md5web(\
+		'http://md5crack.com/crackmd5.php',\
+		'("',\
+		'")',\
+		{'term': "#hash#", 'crackbtn': 'Crack+that+hash+baby%21'}))
+		
+		self.webs.append(md5web(\
+		'http://md5pass.info',\
+		'Password - <b>',\
+		'</b>',\
+		{'hash': '#hash#', 'get_pass': 'Get+Pass'}))
+		
+		self.webs.append(md5web(\
+		'http://md5decryption.com',\
+		'Decrypted Text: </b>',\
+		'</font>',\
+		{'hash': '#hash#', 'submit': 'Decrypt+It%21'}))
+		
+		#self.webs.append(md5web(\
+		#'http://',\
+		#'',\
+		#'',\
+		#{}))
 	
 	def find(self, _hash):
 		"""
