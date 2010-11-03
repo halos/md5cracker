@@ -7,7 +7,7 @@ import cookielib
 import string
 
 __id__ = "md5searcher.py"
-__version__ = "v1.0"
+__version__ = "v1.1"
 __author__ = "Javier Rascón Mesa"
 __license__ = "GPL"
 
@@ -74,12 +74,11 @@ class md5web:
 						
 			encoded_params = urllib.urlencode(params)
 			req = urllib2.Request(url, encoded_params)
-			page = urllib2.urlopen(req)
+			page = urllib2.urlopen(req).read()
 			
-			for line in page.readlines():
-				if self.prev_str in line:
-					found = line.split(self.prev_str)[1]
-					found = found.split(self.post_str)[0]
+			if self.prev_str in page and self.post_str in page:
+				found = page.split(self.prev_str)[1]
+				found = found.split(self.post_str)[0]
 
 		finally:
 			return found
